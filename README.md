@@ -1,9 +1,9 @@
-#Neural Compute Stick 2 환경 구성 및 동작
+# Neural Compute Stick 2 환경 구성 및 동작
 ## OS
 - Ubuntu LTS 16.04
 - Rasbian Stretch
 
-##Raspberry PI 3 환경 설정
+## Raspberry PI 3 환경 설정
 라즈베리파이에 라즈비안 스트레치가 설치되어있다고 가정하고 아래 내용을 진행한다.
 [이 곳](http://download.01.org/openvinotoolkit/2018_R5/packages/l_openvino_toolkit_ie_p_2018.5.445.tgz)을 클릭하여 Raspberry PI 용 OpenVINO를 다운로드 받는다.
 이 설치 패키지에는 OpenCV 4.0버전과 추론 엔진 및 샘플 애플리케이션이 포함되어 있다.
@@ -44,7 +44,7 @@ sh inference_engine_vpu_arm/install_dependencies/install_NCS_udev_rules.sh
 ```
 이 과정을 마치면 Neural Compute Stick 2를 라즈베리파이에서 구동할 준비가 완료된다.
 
-##데스크탑(리눅스) 환경 구성
+## 데스크탑(리눅스) 환경 구성
 설치 환경은 Ubuntu 16.04 LTS 이다.
 [이 곳](https://software.intel.com/en-us/openvino-toolkit/choose-download/free-download-linux)을 클릭하여 OpenVINO 인텔 배포판을 다운로드한다.
 
@@ -78,7 +78,7 @@ source /opt/intel/computer_vision_sdk/bin/setupvars.sh
 를 통해 설정할 수 있고, 이 소스 역시 `bashrc`파일에 추가하면 재실행 시에도 환경이 유지된다.
 
 
-##Model Optimizer
+## Model Optimizer
 데스크탑에서 설계한 모델을 라즈베리파이에서 구동하기 위해서 일련의 변환 작업이 필요하다.
 여기서는 모델의 체크포인트를 저장한 `.ckpt`파일이 있다고 가정한다.
 먼저 이 `.ckpt` 파일을 `.pb` 파일로 변환해 주는 작업이 필요하다.
@@ -162,7 +162,7 @@ sudo python3 mo_tf.py --input_model /home/leehanbeen/PycharmProjects/TypeClassif
 이제 데스크탑에서의 작업은 모두 완료되었다.
 여기서 생성한 `.xml`, `.bin` 파일을 USB등을 통해 `Raspberry PI`에 옮겨서 소스를 작성할 것이다.
 
-##Raspberry PI를 이용한 Inference
+## Raspberry PI를 이용한 Inference
 
 위 과정이 모두 성공적으로 종료되면 나머지는 간단하다.
 
