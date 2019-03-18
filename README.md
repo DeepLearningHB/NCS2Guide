@@ -93,6 +93,7 @@ graph_io.write_graph(frozen, './saved/model/', 'inference_graph_char.pb', as_tex
 
 ```
 `tf.graph_util.convert_variables_to_constants` 함수에서 변수들을 동결시킨다. 마지막 인자로 들어간 `["hypothesis"]`는 출력 값의 `name_scope`를 지정해 준 것이다.
+자세한 사항은 동봉된 TypeTest.py파일의 41번째 줄 및 191번째 줄을 참고하길 바란다.
 `graph_io.write_graph` 함수의 인자로 동결된 값, 저장 장소, 저장 파일명, `as_text` 가 들어가는데 `as_text`는 `False`로 주었다. (용도는 잘 모르겠다.)
 
 이 과정에서 오류가 발생한다면 아마 `name` 지정 문제가 가장 크리라 생각된다.
@@ -189,6 +190,9 @@ blob = cv2.dnn.blobFromImage(frame, size=(128, 64), ddepth=cv2.CV_8U)
 ```
 입력에 맞게 이미지를 전처리를 수행해준다.
 네트워크에 들어가기 위해서 이미지를 `blob`이라는 형태로 변경해주는 것으로 보인다.
+blob의 shape은 (1, 3, 64, 128)로 (size, C, H, W) 형태로 들어가는 듯 하다.
+OpenCV는 다양한 데이터 타입을 지원하지만 blobFromImage는 CV_8U 혹은 CV_32F 두가지 형태만 가능하다.
+하지만 추론에는 영향을 미치지 않는 것으로 보인다.
 
 ```python
 net.setInput(blob)
@@ -224,4 +228,4 @@ print(np.argmax(out))
 ```
 의도한 출력이 생성되었다.
 
-- 추론은 성공적으로 진행되었으나, inference 시간이 너무 긴 문제. 4,7
+- 추론은 성공적으로 진행되었으나, inference 시간이 너무 긴 문제. 약 4.7 19.03.18
