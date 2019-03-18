@@ -232,4 +232,4 @@ print(np.argmax(out))
 - (128, 64, 3)의 이미지는 추론 시간이 4.7초였으나, 이미지 사이즈가 더 작은 (40, 40, 1)에 대해서는 무한대의 시간 소요.
   - 추측: cv2.readNet() 호출 직후 net.setPreferableBackend(cv2.dnn.DNN_BACKEND_INFERENCE_ENGINE) 호출
   - 추측2: pb를 IR표현으로 변환 시 mo_tf.py 의 인자로 --data_type FP16 으로 설정(default?) 
-    CPU로 구동 시에는 FP32로 변환하는 것으로 알고 있음.
+    CPU로 구동 시에는 FP32로 변환하는 것으로 알고 있음. 19.03.18
