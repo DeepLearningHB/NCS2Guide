@@ -39,6 +39,8 @@ def model(x, keep_drop=1.0):
 
     net_t = slim.fully_connected(net, 8)
     net_t_soft = tf.nn.softmax(net_t, name='hypothesis')
+    # 이 부분에서 .pb파일로 변환 시 들어갈 output의 이름을 정해주었음.
+    
     net_c = slim.fully_connected(net, 2)
     net_c_soft = tf.nn.softmax(net_c)
     return net_t, net_c, net_t_soft, net_c_soft
@@ -185,8 +187,9 @@ if __name__ == "__main__":
             shutil.copy(os.path.join(path_list_train[i],img_list_train[i]), os.path.join('/home/leehanbeen/PycharmProjects/TypeClassifier/SavedImage/Object', asd))
 
     coldGraph(sess, 'model', 'input', 'hypothesis', 'save/Const:hypothesis')
-    frozen = tf.graph_util.convert_variables_to_constants(sess, sess.graph_def, ["hypothesis"])
-    graph_io.write_graph(frozen, './', 'inference_graph_type.pb', as_text=False)
+    
+    frozen = tf.graph_util.convert_variables_to_constants(sess, sess.graph_def, ["hypothesis"]) #41번째 줄의 hypothesis 가 인자로 들어감.
+    graph_io.write_graph(frozen, './', 'inference_graph_type.pb', as_text=False) # 현재 디렉토리에 inference_graph_type.pb 파일 생성.
 
     print("Test Confusion Matrix")
     print(confusion_matrix(test_y[:len(y_hat_t_list)], y_hat_t_list))
