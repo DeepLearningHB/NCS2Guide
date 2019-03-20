@@ -164,6 +164,17 @@ sudo python3 mo_tf.py --input_model /home/leehanbeen/PycharmProjects/TypeClassif
 여기서 생성한 `.xml`, `.bin` 파일을 USB등을 통해 `Raspberry PI`에 옮겨서 소스를 작성할 것이다.
 
 ## Raspberry PI를 이용한 Inference
+Inference를 하는 방법은 Inference Engine을 OpenCV에서 백엔드를 사용할 수도 있고, 
+IE를 직접 사용할수도 있다. IE를 직접 사용하는 방법은 [이 곳](http://docs.openvinotoolkit.org/latest/_ie_bridges_python_docs_api_overview.html)
+을 참고하면 된다. 
+IE를 OpenCV에서 사용할 때와 직접 사용할때의 장단점이 모두 존재한다. 
+직접 사용할 경우 성능 상의 이득을 볼 수 있지만, 사용 방법이 OpenCV를 이용할 때보다 약간 복잡하고 
+오직 `model_optimizer`(`.xml`+`.bin`)로 변환된 파일만 사용이 가능하다.
+IE를 OpenCV에서 백엔드로 사용할 때, 사용 방법은 상당히 간단하고, 
+다양한 딥러닝 프레임워크에서 작성한 모델 포맷을 로드할 수 있다. 
+
+결국 편리성과 성능의 Trade off 라고 볼 수 있다. 
+본 구현에서는 IE를 OpenCV의 백엔드로서 사용할 것이다. 
 
 위 과정이 모두 성공적으로 종료되면 나머지는 간단하다.
 
