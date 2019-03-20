@@ -168,7 +168,7 @@ Inference를 하는 방법은 Inference Engine을 OpenCV에서 백엔드를 사�
 IE를 직접 사용할수도 있다. IE를 직접 사용하는 방법은 [이 곳](http://docs.openvinotoolkit.org/latest/_ie_bridges_python_docs_api_overview.html)
 을 참고하면 된다. 
 IE를 OpenCV에서 사용할 때와 직접 사용할때의 장단점이 모두 존재한다. 
-직접 사용할 경우 성능 상의 이득을 볼 수 있지만, 사용 방법이 OpenCV를 이용할 때보다 약간 복잡하고 
+직접 사용할 경우 성능 상의 이득을 볼 수 있지만, 사용 방법이 OpenCV를 이용할 때보다 약간 복잡하고 (사용해보니 복잡하지 않았다.)
 오직 `model_optimizer`(`.xml`+`.bin`)로 변환된 파일만 사용이 가능하다.
 IE를 OpenCV에서 백엔드로 사용할 때, 사용 방법은 상당히 간단하고, 
 다양한 딥러닝 프레임워크에서 작성한 모델 포맷을 로드할 수 있다.
@@ -179,7 +179,7 @@ cv2의 dnn 클래스는 프롬프트에서 `pip` 등을 이용한 설치로는 �
 위 과정을 제대로 수행하였으면 `dnn`  모듈의 사용은 문제가 없을 것이다.
 [출처](https://software.intel.com/en-us/forums/computer-vision/topic/806268)
 
-본 구현에서는 IE를 OpenCV의 백엔드로서 사용할 것이다. 
+1. IE를 OpenCV의 백엔드로서 사용 
 
 위 과정이 모두 성공적으로 종료되면 나머지는 간단하다.
 
@@ -244,8 +244,101 @@ print(np.argmax(out))
 ```
 의도한 출력이 생성되었다.
 
-- 추론은 성공적으로 진행되었으나, inference 시간이 너무 긴 문제. 약 4.7초 19.03.18
-- (128, 64, 3)의 이미지는 추론 시간이 4.7초였으나, 이미지 사이즈가 더 작은 (40, 40, 1)에 대해서는 무한대의 시간 소요.
-  - 추측: cv2.readNet() 호출 직후 net.setPreferableBackend(cv2.dnn.DNN_BACKEND_INFERENCE_ENGINE) 호출
-  - 추측2: pb를 IR표현으로 변환 시 mo_tf.py 의 인자로 --data_type FP16 으로 설정(default?) 
-    CPU로 구동 시에는 FP32로 변환하는 것으로 알고 있음. 19.03.18
+2. Inference Engine을 직접 사용
+
+```python
+from openvino.inference_engine import IENetwork, IEPlugin
+import numpy as np
+import cv2
+import time
+```
+inrerence_engine의 IENetwork와 IEPlugin을 import 한다. 
+
+```python
+print(cv2.__version__)
+s_time = time.time()
+net = IENetwork(XML_PATH, BIN_PATH)
+plugin = IEPlugin(device='MYRIAD')
+exec_nt = plugin.load(net)
+```
+모델을 설정하고, NCS2 디바이스에 모델을 로드한다. 
+
+```python
+net_load_time = time.time()
+
+frame = cv2.imread(IMAGE_PATH)
+frame = cv2.resize(frame, (128, 64))
+blob = cv2.dnn.blobFromImage(frame, size=(128, 64), ddepth=cv2.CV_32F)
+
+preprocess_time = time.time()
+```
+위와 동일한 이미지 전처리를 해준다.
+
+```python
+res = exec_nt.infer({'input': blob})
+```
+추론하는 부분이다. input이 Dictionary형태로 들어간다.
+
+전체 소스코드
+
+```python
+from openvino.inference_engine import IENetwork, IEPlugin
+import numpy as np
+import cv2
+import time
+
+
+BIN_PATH = '/home/pi/Downloads/inference_graph_type.bin'
+XML_PATH = '/home/pi/Downloads/inference_graph_type.xml'
+
+IMAGE_PATH = '/home/pi/Downloads/plate(114).jpg_1.jpg'
+
+print(cv2.__version__)
+s_time = time.time()
+
+net = IENetwork(XML_PATH, BIN_PATH)
+plugin = IEPlugin(device='MYRIAD')
+exec_nt = plugin.load(net)
+
+net_load_time = time.time()
+
+frame = cv2.imread(IMAGE_PATH)
+frame = cv2.resize(frame, (128, 64))
+blob = cv2.dnn.blobFromImage(frame, size=(128, 64), ddepth=cv2.CV_32F)
+
+preprocess_time = time.time()
+
+
+res = exec_nt.infer({'input': blob})
+
+inference_time = time.time()
+
+print(res['hypothesis'])
+print(np.argmax(res['hypothesis']))
+print(np.max(res['hypothesis']))
+
+print("---------------------")
+print("Network Loading Time: %s" % (net_load_time - s_time))
+print("Image Preprocessing Time: %s" % (preprocess_time - net_load_time))
+print("Inference Time: %s" % (inference_time - preprocess_time))
+```
+
+결과 화면
+```
+4.0.1-openvino
+[[0.15551758 0.70458984 0.1303711 0.00165462 0.001620217 0.00432587
+0.00094889 0.00092173]]
+1
+0.70458984
+---------------------
+Network Loading Time: 0.045161008834839
+Image Preprocessing Time: 0.05246901512145996
+Inference Time: 0.01130819320678711
+```
+[이 곳](https://software.intel.com/en-us/forums/computer-vision/topic/806268)에 질문을 올렸었는데,
+성능차이가 있다고는 했지만 생각보다 상당히 많이 성능차이가 발생했다.
+
+
+- 문제1: 추론은 성공적으로 진행되었으나, inference 시간이 너무 긴 문제. 약 4.7초 19.03.18
+- 해결: OpenCV에서 백엔드로 IE를 사용하지 않고, 직접 IE를 사용하였다. 19.03.20
+- 문제2: 컬러 이미지에 대한 추론은 굉장히 빠르게 진행되나 (40, 40, 1) 이미지 추론을 하지 못하고 있다. 19.03.20
