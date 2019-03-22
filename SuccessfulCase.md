@@ -73,6 +73,35 @@ sudo python3 mo_tf.py
 ```
 - result
 ```
+Model Optimizer arguments:
+Common parameters:
+        - Path to the Input Model:      /home/leehanbeen/PycharmProjects/TypeClassifier/inference_graph_type.pb
+        - Path for generated IR:        /opt/intel/computer_vision_sdk_2018.5.455/deployment_tools/model_optimizer/.
+        - IR output name:       inference_graph_type
+        - Log level:    ERROR
+        - Batch:        Not specified, inherited from the model
+        - Input layers:         input
+        - Output layers:        Not specified, inherited from the model
+        - Input shapes:         [1, 64, 128, 3]
+        - Mean values:  Not specified
+        - Scale values:         Not specified
+        - Scale factor:         Not specified
+        - Precision of IR:      FP16
+        - Enable fusing:        True
+        - Enable grouped convolutions fusing:   True
+        - Move mean values to preprocess section:       False
+        - Reverse input channels:       False
+TensorFlow specific parameters:
+        - Input model in text protobuf format:  False
+        - Offload unsupported operations:       False
+        - Path to model dump for TensorBoard:   None
+        - List of shared libraries with TensorFlow custom layers implementation:        None
+        - Update the configuration file with input/output node names:   None
+        - Use configuration file used to generate the model with Object Detection API:  None
+        - Operations to offload:        None
+        - Patterns to offload:  None
+        - Use the config file:  None
+Model Optimizer version:        1.5.12.49d067a0
 [ SUCCESS ] Generated IR model.
 [ SUCCESS ] XML file: /opt/intel/computer_vision_sdk_2018.5.455/deployment_tools/model_optimizer/./inference_graph_type.xml
 [ SUCCESS ] BIN file: /opt/intel/computer_vision_sdk_2018.5.455/deployment_tools/model_optimizer/./inference_graph_type.bin
